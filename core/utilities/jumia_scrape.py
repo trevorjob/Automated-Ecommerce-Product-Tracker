@@ -1,23 +1,43 @@
 from time import sleep
 
+# # windows
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver import Chrome
+
+# from selenium.webdriver import Chrome
 from selenium.webdriver.common.by import By
+
+# linux
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 def scrape_jumia(
     search_query: str, price_limit: str = None, discount_filter: str = None
 ) -> list:
-    all_products = []
-    driver = Chrome()
-    url = f"https://www.jumia.com.ng/catalog/?q={search_query}"
+    # # windows
+    # driver = Chrome()
 
+    # linux
+    print('starting scrape...........')
+    options = Options()
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    driver = webdriver.Chrome(
+        service=Service(ChromeDriverManager().install()), options=options
+    )
+    print('driver installed .......')
+    all_products = []
+    url = f"https://www.jumia.com.ng/catalog/?q={search_query}"
     if price_limit is not None:
         url += f"&price=0-{price_limit}"
     if discount_filter is not None:
         url += f"&price_discount={discount_filter}-100"
 
     driver.get(url)
+    print('successfully scraped data')
     sleep(5)
 
     products = driver.find_elements(by=By.CLASS_NAME, value="core")
@@ -69,4 +89,5 @@ def scrape_jumia(
     return all_products
 
 
-products = scrape_jumia("boots", discount_filter="50", price_limit="12000")
+# products = scrape_jumia("boots", discount_filter="50", price_limit="12000")
+# print(products)
